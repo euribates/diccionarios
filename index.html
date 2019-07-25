@@ -1,0 +1,617 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>¿Cómo funcionan los diccionarios en Python?</title>
+
+		<link rel="stylesheet" href="css/reset.css">
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/night.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/monokai.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+
+				<section data-background-image="art/cover.png">
+                </section>
+                
+                <section>
+                    <h2>¿Cómo funcionan<br>los Diccionarios<br>en Python?</h2>
+                    <h4>PyBirras • Tenerife • 26/jul/2019</h4>
+                    <p>Juan Ignacio
+                    Rodríguez de León <a href="https://twitter.com/jileon">@jileon</a></p>
+                </section>
+
+                <section>
+                  <h3>Diccionarios</h3>
+                  <h4>Lo mejor desde el pan de molde</h4>
+                  <pre><code data-trim data-noescape>
+                    numbers = ['cero', 'uno', 'dos', 'tres']
+                    assert numbers[1] == 'uno'
+                  </code></pre>
+                  <pre><code data-trim data-noescape>
+                    numbers = {'cero': 0, 'uno': 1, 'dos': 2, 'tres': 3}
+                    assert numbers['dos'] == 2
+                    assert numbers['uno'] + numbers['dos'] == numbers['tres']
+                    </code></pre>
+                </section>
+                
+                <section>
+                    
+                    <section>
+                        <h3>Con las listas es fácil</h3>
+                        <ul>
+                        <li>Con las listas (o tuplas) accedemos a los valores por su
+                        <b class="fragment highlight-green">índice o posición</b></p>
+                        <li>Esto es fácil de implementar: a partir del índice se consigue
+                            la <b class="fragment highlight-green">dirección de memoria</b>
+                            donde está el dato</li>
+
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>Con las listas es fácil</h3>
+                        <img src="art/00-array.png" alt="Array of 8-letters words"/>
+                    </section>
+
+                    <section data-background-image="art/easy.gif">
+                        <h3>Con las listas es fácil</h3>
+                    </section>
+                    
+                </section>
+                
+
+                <section>
+                    
+                    <section>
+                        <h3>¿Cómo lo hacen los diccionarios?</h3>
+                        <ul>
+                            <li>Se puede usas (casi) cualquier cosa como índice</li>
+                            <li>No hay una función matemática que a partir de la clave
+                            pueda indicarnos la posición en memoria del contenido</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>¿Cómo lo hacen los diccionarios?</h3>
+                        <h4>Una aproximación ingenua</h4>
+                        <ul>
+                            <li>Podriamos guardar una lista de tuplas</li>
+                            <li>Cada tupla constaria de dos elementos, la clave y el valor</li>
+                            <li>Para acceder, buscando la tupla cuya
+                            clave sea igual a la indicada</li>
+                            <li>Devolvemos el valor si lo encontramos, o elevamos
+                            una excepcion <code>KeyError</code> si no</li>
+                        </ul>
+                    </section>
+                    
+                    <section>
+                        <h3>¿Cómo lo hacen los diccionarios?</h3>
+                        <p>No escala. Según crece el diccionario, más tardará, de 
+                        media, en localizar un valor</p>
+                    </section>
+
+                    <section data-background-image="art/slow.gif">
+                        <h3>¿Cómo lo hacen los diccionarios?</h3>
+                    </section>
+
+                </section>
+
+                <section>
+                    <section>
+                        <h3>notación de Landau</h3>
+                    
+                            <p>El acceso a la lista es independiente del tamaño de la misma, porque
+                            solo tiene que hacer una multiplicación y una suma, no importa
+                            donde esté ubicado el valor</p>
+
+                            <p>El acceso a la lista es <b>O(1)</b> u <b>Orden constante</b></p>
+
+                    </section>
+
+                    <section>
+
+                        <h3>notación de Landau</h3>
+                        <p>Nuestro "Diccionario" tiene orden <b>O(n)</b>, u <b>Orden lineal</b>
+                        o <b>de primer orden</b> porque lo rápido que sea dependerá del número
+                        de valores almacenados</p>
+
+                        <p class="fragment highlight-green" style="border: 1px solid white">O(1) es
+                            <big>mucho, mucho mejor</big> que O(n)</p>
+                    </section>
+
+                    <section>
+                        <h3>El mérito del diccionario</h3>
+
+                        <p>es tener orden <b>O(1)</b>, es decir,
+                        que devuelva en un <b class="fragment highlight-green">tiempo constante</b> el resultado independientemente
+                        del tamaño del diccionario</p>
+
+                    </section>
+                        <section data-background-image="art/impossible.webp">
+                    </section>
+                </section>
+
+                <section>
+                    
+                    <section>
+                    <h2>Funciones Hash</h2>  
+                    
+                    <ul>
+
+                        <li>Transforman un <b class="fragment highlight-green">dato o conjunto de
+                            datos</b> en un <b class="fragment highlight-green">número dentro un
+                            rango limitado</b></li>
+
+                        <li>Si <b class="fragment highlight-green">dos datos son iguales</b>,
+                            producen el <b class="fragment highlight-green">mismo valor de hash</b></li>
+                        <li>Si <b class="fragment highlight-green">dos datos son diferentes</b>, aun
+                            así <b class="fragment highlight-green">podrían producir el mismo
+                                valor de hash</b>. Esto se conoce como <b>colisiones</b></li>
+
+                        <li>Ante un <b class="fragment highlight-green">pequeño</b> cambio en los
+                            datos de entrada, se produce un <b class="fragment
+                                highlight-green">número muy diferente</b></li>
+
+                    </ul>
+                    <aside class="notes">
+                        <p>La última propiedad es deseable, pero no estrictamente
+                        necesaria para ser una función hash</p>
+                    </aside>
+                    </section>
+
+                    <section>
+                        <h3>Matemáticamente</h3>
+
+                        <p style="border: 1px solid white">$$ \forall a,b | a = b \Rightarrow hash(a) = hash(b) $$</p>
+                        <p>Pero Lo contrario no tiene que ser cierto, si dos valores
+                            tienen el mismo valor de hash, no implica que sean iguales</p>
+                        <p style="border: 1px solid white">$$ \forall a,b | hash(a) = hash(b) \nRightarrow a = b $$</p>
+                    </section>
+                    <section>
+                        <h3>Diferentes funciones Hash</h3>
+                        <ul>
+                            <li>Existen muchas funciones hash</li>
+                            <li>Una de las más conocidas son la familia de funciones SHA-A 
+                                (Secure Hash Algorith)</li>
+                            <li>Existen 4 variedades: SHA-224, SHA-256, SHA-384 y SHA-512, que
+                            producen resultados de  224, 256, 384 y 512 bits respectivamente</li>
+                            <li>Otras funciones hash conocidas son MD5, BLAKE, Tiger, Whirlpool...</li>
+                            <ul>
+                        </ul>
+                    </section>
+
+
+                    <section>
+                        <h3>Qué funcion hash usa Python?</h3>
+                        <ul>
+                            <li>Python utiliza distintas funciones hash</li>
+                            <li>Dependiendo de varios factores, entre ellos, el tipo de dato</li>
+                            <li>Para los enteros, por ejemplo, es simplemente el mismo número</li>
+                            <li>Se puede controlar el valor de hash para las instancias
+                                de nuestras clases, definiendo un método <code>__hash__</code>
+                                </li>
+                            <li>Los detalles están explicadas en el <a
+                                    href="https://www.python.org/dev/peps/pep-0456/"
+                                    target="_blank">PEP-0456 Secure and interchangeable hash algorithm</a></li>
+                        </ul>
+                        <aside class="notes">
+                            <p>Se puede abrir la consola y hacer varias pruebas</p>
+                            <p>Como curiosidad, el valor <code>-1</code> está prohibido (Se usa
+                            como valor especial de error en <code>C</code>), asi que hash(1) ==
+                            1 pero hash(-1) == 2</p>
+
+                        </aside>
+                    </section>
+                
+                    <section>
+                        <img src="art/01-hash-function.png" alt="Hash functions"/>
+                    </section>
+
+                </section>
+
+                <section>
+                    
+                    <section>
+                        <h3>Al crear un diccionario</h3>
+                        <ul>
+                            <li>Internamente se crea un <i>array</i> en C de 8 elementos</li>
+                            <li>Cada entrada en la tabla almacena:</li>
+                            <ul>
+                                <li>Un indicador de <b class="fragment highlight-green">En uso/Libre</b></li>
+                                <li>El <b class="fragment highlight-green">hash</b> de la clave</li>
+                                <li>Un puntero hacia el valor de la <b class="fragment highlight-green">clave</b></li>
+                                <li>Un puntero hacia el <b class="fragment highlight-green">valor</b> almacenado</li>
+                            </ul>
+                        </ul>
+                        <aside class="notes">
+                            <p>Es un array en C. No puede crecer, y todos los elementos del
+                            mismo deben ser del mismo tipo, en este caso, estructuras
+                            con los cuatro valores anteriores.</p>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h3>Al crear un diccionario, además</h3>
+                        <ul>
+                            <li>Se almacena el <b class="fragment highlight-green">tamaño
+                                    actual</b> de la tabla (inicialmente
+                                8 = 2³)</li>
+
+                            <li>Y tambien se lleva la cuenta de <b class="fragment
+                                                                        highlight-green">cuantos slots
+                                                                        hay usados</b></li> </ul>
+
+                            <aside class="notes">
+                                <p>El tamaño de
+                                    la tabla es un múltiplo de 2. Esto
+                                    es importante y se explicara más
+                                    adelante.</p>
+                                <p>Se usa la
+                                    proporcion entre los slots usados
+                                    y el tamaño para determinar si el
+                                    diccionario necesita ser
+                                    ampliado.</p>
+                            </aside>
+                    </section>
+
+                    <section>
+                        <img src="art/02-empty-dict.png" alt="Diccionario (a nivel C) vacio"/>
+                        <aside class="notes">
+                            <p>Los números a la izquierda son las posiciones en el array. Se añade
+                            el valor en binario porque se usara en la explicación que sigue.</p>
+                        </aside>
+                    </section>
+
+                </section>
+
+                <section>
+                    
+                    <section>
+                        <h3>Vamos a insertar un valor</h3>
+                        <p>Supongamos que ejecutamos:</p>
+                        <pre><code data-trim data-noescape>
+                        d = {}
+                        <b>d['tres'] = 3</b>
+                        </code></pre>
+                    </section>
+
+                    <section>
+                        <h3>Vamos a insertar un valor</h3>
+                        <p>Calculamos el hash de "tres"</p>
+
+                        <p class="fragment" style="border: 1px solid white"><code>2524995206407244382</code></p>
+                        <p class="fragment">Cuyo valor en binario es:</p>
+                        <p class="fragment" style="border: 1px solid white">
+                        <code><small>10001100001010100101011100001100100001011101111100101001011110
+                        </small></code></p>
+                        <p class="fragment">Como la tabla es de tamaño 8, solo interesan los
+                        tres últimos bits:</p>
+                        <p class="fragment" style="border: 1px solid white">
+                        <code>110 = 6</code></p>
+                        <aside class="notes">
+                            <p>Pregunta al público por qué solo tres bits</p>
+                            <p>Pista: 8 = 2³</p>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h3>Insertamos "tres"</h3>
+                        <p>Vamos al array, previamente vacio, y añadimos los valores
+                        correspondientes en la entrada 6</p>
+                        <p>Ahora tenemos un slot en uso</p>
+                    </section>
+
+                    <section>
+                        <h3>Insertamos "tres"</h3>
+                        <img src="art/03-one-entry.png" alt="Una entrada"/>
+                    </section>
+
+                </section>
+
+                <section>
+                    
+                    <section>
+                        <h3>Vamos a recuperar el valor</h3>
+                        <p>Supongamos que ejecutamos:</p>
+                        <pre><code data-trim data-noescape>
+                        <b>x = d['tres']</b>
+                        </code></pre>
+                    </section>
+
+                    <section>
+                        <h3>Vamos a recuperar el valor</h3>
+                        <ul>
+                            <li>Calculamos el hash de la clave</li>
+                            <li>Nos quedamos con los tres bits menos significativos</li>
+                            <li>Vamos a la entrada indicada por esos tres bits (En este caso, 6)</li>
+                            <li>Analizamos la entrada</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>Vamos a recuperar el valor</h3>
+                        <ul>
+                            <li>Si no esta ocupada, elevamos la excepcion <code>KeyError</code></li>
+                            <li>Si está, comparamos la clave indicada con la almacenada:</li>
+                                <ul>
+                                    <li>si son iguales, hemos encontrado la entrada. Devolvemos el valor
+                            de la tabla</li>
+                                    <li>Si el valor es diferente, es una colisión. Veremos como se
+                                        trata más adelante</li>
+                                </ul> 
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>Vamos a recuperar el valor</h3>
+                        <img src="art/03-one-entry.png" alt="Una entrada"/>
+                    </section>
+
+                </section>
+                
+                <section>
+                    
+                    <section>
+                        <h3>Insertamas "uno" => 1</h3>
+                        <pre><code data-trim data-noescape>
+                            d['uno'] = 1</b>
+                        </code></pre>
+                    </section>
+
+                    <section>
+                        <h3>Insertamas "uno" => 1</h3>
+                        <p>Calculamos el hash de "uno"</p>
+
+                        <p class="fragment" style="border: 1px solid white"><code> -1091141910288860634 </code></p>
+                        <p class="fragment">En binario es:</p>
+                        <p class="fragment" style="border: 1px solid white">
+                        <code><small>111100100100100000111100100101001010010011110000010111011010
+                        </small></code></p>
+                        <p class="fragment">Los tres últimos bits:</p>
+                        <p class="fragment" style="border: 1px solid white">
+                        <code>010 = 2</code></p>
+                    </section>
+
+                    <section>
+                        <h3>Insertamas "uno" => 1</h3>
+                        <ul>
+                            
+                            <li>Vamos al array. La entrada 2 esta disponible</li>
+                            <li>!Qué suerte!</li>
+                            <li>Añadimos los valores
+                        correspondientes en la entrada 2</li>
+                            <li>Ahora tenemos <b>dos</b> slots en uso</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>Insertamas "uno" => 1</h3>
+                        <img src="art/04-two-entry.png" alt="Dos entradas"/>
+                    </section>
+                </section>
+
+                <section>
+
+                     <section>
+                        <h3>Colisiones</h3>
+
+                        <ul>
+                            
+                            <li>Más tarde o más temprano, habrá una
+                                <b class="fragment highlight-green">colisión</b></li>
+
+                        <li>Es decir dos valores de
+                            <b class="fragment highlight-green">claves diferentes</b>
+                            nos darán los mismos tres bits finales</li>
+
+                        <li>En nuestro caso es con la clave
+                            <b class="fragment highlight-green">"cero"</b></li>
+                        </ul>
+                    </section>
+                   
+
+                    <section>
+                        <h3>Colisiones</h3>
+                        <p>Calculamos el hash de "cero"</p>
+
+                        <p style="border: 1px solid white"><code>-5141992977061496694</code></p>
+                        <p>En binario es:</p>
+                        <p style="border: 1px solid white">
+                        <code><small>100011101011100000001110101111010000011010011011100011101110110
+                        </small></code></p>
+                        <p>Los tres últimos bits:</p>
+                        <p style="border: 1px solid white">
+                        <code>110 = 6</code> ⚠ </p>
+                    </section>
+
+                    <section>
+                        <h3>Colisiones</h3>
+                        <ul>
+                            
+                            <li>La entrada 6 ya está ocupada</li>
+                            <li>Pero quedan todavía 6 slots libres!</p>
+                            <li>Para resolver esto, python genera una secuencia de valores a partir del 6</p>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>Colisiones</h3>
+
+                        <ul>
+                            <li>Esta lista siempre es igual para cada valor inicial</li>
+                            <li>Por ejemplo, podemos pensar
+                            que a partir del 6, Python genera [7,0,1,2,3,4,5] (No es el caso,
+                            usa un sistema más elaborado)</li>
+                            <li>Siguiendo esa lista, se busca la primera celda que este libre. En
+                                este caso, la 7</li>
+                            <li>Su guardan los datos en esa celda, y se marcan como ocupada</li>
+                        </ul>
+                        <aside class="notes">
+
+                            <code>
+                        1 j = (5*j) + 1 + perturb;
+                        2 perturb >>= PERTURB_SHIFT;
+                        3 use j % 2**i as the next table index;
+                            </code>
+
+                        <p></p>
+                    </aside>
+
+                    </section>
+
+                    <section>
+                        <h3>Colisiones</h3>
+                        <img src="art/05-three-entry.png" alt="Dos entradas"/>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h3>Ampliación de la tabla</h3>
+                        <ul>
+                            <li>El límite de densidad es ⅔ del tamaño</li>
+                            <li>Para el tamaño de 8, tenemos:
+                            <p>$$ 5 < \frac{2\times 8}{3} < 6 $$</p>
+                            <li>Asi que tenemos que ampliar la tabla al añadir la sexta entrada</li>
+                        </ul>
+                        <aside class="notes">
+                            <p>El valor de ⅔ es empírico, no se trata
+                            de ningún valor universal</p>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h3>Ampliación de la tabla</h3>
+                        <ul>
+                            <li>La ampliación se hace multiplicando por cuatro
+                                el numero de slots usados</li>
+                            <li>Luego se busca el siguiente
+                                múltiplo de 2 que puede acomodar esa cantidad</li>
+                            <li>En nuestro caso, $ 6 \times 4 = 24 $ asi que se amplía
+                            a 32 ($ 2^5 $)</li>
+                        </ul>
+                        <aside class="notes">
+                            <p>Si el número de entradas en el diccionario crece
+                            mucho (más de 50000), se multiplica por dos en vez de
+                            por cuatro</p>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h3>Ampliación de la tabla</h3>
+                        <ul>
+                            <li>Internamente, Python solicita una nueva tabla
+                            de 32 entradas</li>
+                            <li>para cada entrada en la tabla original, calcula
+                                la nueva posición...</li>
+                            <li>... usando el valor del hash calculado, pero ahora
+                                con los 5 últimos bits, en vez de tres</li>
+                            <li>Las entradas son copiadas a la nueva tabla, en las
+                            nuevas posiciones</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>Ampliación de la tabla</h3>
+                        <ul>
+                            <li>Por ejemplo, los ultimos bits de hash de "tres"
+                            eran <code>...01001011110</code></li>
+                            <li>En una tabla de 8 entradas, ocupaba la posicion 6 (110)</li>
+                            <li>En la nueva tabla de 32 entradas, ocupa
+                            la posición 30 (11110)</li>
+                        </ul>
+                        <aside class="notes">
+                            <p>Esto resuelve muchas de las colisiones que ocurrian antes,
+                            que ahora ya pueden no serlo.</[>
+                            <p>Por ejemplo, la colision entre "cero"
+                            y "tres" se producía porque usabamos solo tres bits. Usando
+                            los cinco últimos, "cero" acaba en la posición 22 (10110)
+                            mientras que "tres", como hemos visto, acaba en la
+                            posición 30 (11110)</p>
+                        </aside>
+                    </section>
+
+                </section>
+
+                <section>
+                    <h3>Cosas que hemos aprendido</h3>
+                    <ul>
+                        <li>Qué es una función hash</li>
+                        <li>Cómo funciona una tabla hash</li>
+                        <li>Por qué las claves de un diccionario 
+                        tiene que ser inmutables</li>
+                        <li>Por qué es obligatorio que si dos variables <code>a</code>
+                        y <code>b</code>, son iguales, entonces sus valores de hash 
+                        también deben ser iguales</li>
+
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Cosas que no hemos visto</h3>
+                    <ul>
+                        <li>Como y cuando la tabla decrece</li>
+                        <li>Como se borran entradas en el diccionario (Pista: se usa
+                        el campo de En uso)</li>
+                        <li>La secuencia usada en caso de colisión</li>
+                        <li>Algunos detalles se han simplificado (Pero no muchos)</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h1>GRACIAS POR SU ATENCIÓN</h1>
+                    <h4>Espero no haberles aburrido demasiado</h4>
+                    <h2>¿Preguntas?</h2>
+                </section>
+            </div>
+		</div>
+
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+                hash: true,
+                center: false,
+                width: 1024,
+                height: 768,
+                slideNumber: true,
+                progress: true,
+                transition: 'convex',
+
+                math: {
+		            mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+		            config: 'TeX-AMS_HTML-full',
+                    TeX: { Macros: 'macros' }
+                },
+
+
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+                    { src: 'plugin/math/math.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true }
+				]
+			});
+		</script>
+	</body>
+</html>
